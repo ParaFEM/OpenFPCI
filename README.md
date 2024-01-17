@@ -8,7 +8,9 @@ The package allows the coupling of the finite element package ParaFEM to a compu
 
 ## Description
 
-This package requires OpenFOAM-Extend, ParaFEM and an external fluid structure interaction library, which can be installed through the following websites.
+This package consists of ParaFEM, OpenFOAM-Extend and FSI Library. OpenFPCI can couple the three through plugins. The OpenFPCI plugings compromise a series of Fortran subroutines, that used ParaFEM's highly parallel implementation, and a C++ wrapper. 
+
+The repositories of the three software packages are as follows:
 
 ParaFEM: https://sourceforge.net/projects/parafem/
 
@@ -16,7 +18,6 @@ OpenFOAM-Extend: https://openfoamwiki.net/index.php/Installation/Linux/foam-exte
 
 FSI Library: https://openfoamwiki.net/index.php/Extend-bazaar/Toolkits/Fluid-structure\_interaction
 
-The library represents a direct coupling between ParaFEM and OpenFOAM-Extend, through OpenFPCI plugins. The OpenFPCI plugings compromise a series of Fortran subroutines, that used ParaFEM's highly parallel implementation, and a C++ wrapper.
 
 ## Project tree
 The project tree presents the directories within OpenFPCI. Only the src/solidSolvers/paraFEM directory has been expanded, as these are the important files required to install and run OpenFPCI. The table below then provides a brief description of each of the directories in the project tree, in particular those within [src/solidSolvers/paraFEM](./src/solidSolvers/paraFEM)
@@ -55,8 +56,29 @@ The project tree presents the directories within OpenFPCI. Only the src/solidSol
 | [largeStrain](./src/solidSolvers/paraFEM/largeStrain)  | It contains the C++ class files (.H and .C) that act as a wrapper around the `parafemnl.f90` Fortran file. |
 | [smallStrain](./src/solidSolvers/paraFEM/smallStrain)  | It contains the C++ class files (.H and .C) that act as a wrapper around the `parafeml.f90` Fortran file. |
 
-## Installation
+## Installation 
 
+The OpenFPCI installation process now works with Docker. Installing from a Docker Image will simplify installation. Moreover, all operating environments have been configured.
+### Install from Docker Image
+
+#### Installation of Docker
+
+Please follow the Docker Docs: https://docs.docker.com/get-docker/
+If you install Docker on a Linux operating system, please also refer to the above link.
+
+#### Windows Subsystem
+
+Installation of WSL2 and Ubuntu Subsystem refer to: https://learn.microsoft.com/en-us/windows/wsl/about
+
+The Windows subsystem can be installed via the Microsoft Store as Ubuntu 22.04 LTS. At the same time, Windows systems need to install WSL. To adjust the default to WSL2, please refer to this link: https://learn.microsoft.com/en-us/windows/wsl/install
+
+#### Installation
+
+1. Open Docker Desktop, refer to Settings > Resources > WSL integration > Enable integration with additional distros: Make sure this option is turned on and the Windows Subsystem that your installed is detected. (If you are running Docker Desktop on Linux System, please go to step 2.)
+2. Open Windows Subsystem(Ubuntu)/ Linux Terminal. Run 'docker pull jacthyli/openfpci' in Terminals. To run a Docker Image in Docker Desktop, please refer to: https://docs.docker.com/guides/walkthroughs/run-hub-images/.
+3. After Pulling is completed, users can see the image that has been pulled to the local in Docker Desktop. Users can run the command 'docker exec -it Docker_Name_or_ID /bin/bash' to interact the OpenFPCI in Terminal. Docker command line docs refer to: https://docs.docker.com/engine/reference/commandline/cli/
+
+### Install from Source Code
 Foam-Extend and ParaFEM must be downloaded and compiled prior to the installation of the OpenFPCI link. It is suggested that users follow the links provided above to install the relevent pacakges suitable for their systems. Once these packages have been compiled and installed the OpenFPCI can be downloaded using the following command: 
 ```
 git clone https://github.com/SPHewitt/OpenFPCI
