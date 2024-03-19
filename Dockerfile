@@ -38,8 +38,6 @@ RUN sed -i 's|http://glaros.dtc.umn.edu/gkhome/fetch/sw/parmetis/parmetis-4.0.3.
 WORKDIR /home/foam/foam-extend-4.0
 ENV PARAVIEW_SYSTEM=0
 ENV HOME /home
-RUN echo "alias fe40='source /home/foam/foam-extend-4.0/etc/bashrc'" >> $HOME/.bashrc
-RUN source $HOME/.bashrc
 RUN source /home/foam/foam-extend-4.0/etc/bashrc && ./Allwmake.firstInstall > OpenFoam_Extend_40_log.txt 2>&1 
 RUN source /home/foam/foam-extend-4.0/etc/bashrc && mkdir -p $WM_PROJECT_USER_DIR && mkdir -p $FOAM_RUN
 WORKDIR /home/foam/root-4.0
@@ -67,3 +65,6 @@ ENV PARAFEM_DIR=/home/ParaFEM/parafem
 ENV FOAM_DIR=/home/foam/foam-extend-4.0
 WORKDIR OpenFPCI/src
 RUN source /home/foam/foam-extend-4.0/etc/bashrc && ./openfpci.sh
+WORKDIR /home
+RUN echo "alias fe40='source /home/foam/foam-extend-4.0/etc/bashrc'" >> $HOME/.bashrc
+WORKDIR /home
