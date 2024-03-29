@@ -74,9 +74,9 @@ The Windows subsystem can be installed via the Microsoft Store as Ubuntu 22.04 L
 
 #### Installation
 
-1. Open Docker Desktop, refer to Settings > Resources > WSL integration > Enable integration with additional distros: Make sure this option is turned on and the Windows Subsystem that your installed is detected. (If you are running Docker Desktop on Linux System, please go to step 2.)
-2. Open Windows Subsystem(Ubuntu)/ Linux Terminal. Run 'docker pull jacthyli/openfpci' in Terminals. To run a Docker Image in Docker Desktop, please refer to: https://docs.docker.com/guides/walkthroughs/run-hub-images/.
-3. After Pulling is completed, users can see the image that has been pulled to the local in Docker Desktop. Users can run the command 'docker run -it Docker_Name_or_ID /bin/bash' to interact the OpenFPCI in Terminal. Docker command line docs refer to: https://docs.docker.com/engine/reference/commandline/cli/
+1. Open Docker Desktop, refer to `Settings > Resources > WSL integration > Enable integration with additional distros`: Make sure this option is turned on and the Windows Subsystem that your installed is detected. (If you are running Docker Desktop on Linux System, please go to step 2.)
+2. Open Windows Subsystem(Ubuntu)/ Linux Terminal. Run `docker pull jacthyli/openfpci` in Terminals. To run a Docker Image in Docker Desktop, please refer to: https://docs.docker.com/guides/walkthroughs/run-hub-images/.
+3. After Pulling is completed, users can see the image that has been pulled to the local in Docker Desktop. Users can run the command `docker run -it Docker_Name_or_ID /bin/bash` to interact the OpenFPCI in Terminal. Docker command line docs refer to: https://docs.docker.com/engine/reference/commandline/cli/
 
 ### Install from Source Code
 Foam-Extend and ParaFEM must be downloaded and compiled prior to the installation of the OpenFPCI link. It is suggested that users follow the links provided above to install the relevent pacakges suitable for their systems. Once these packages have been compiled and installed the OpenFPCI can be downloaded using the following command: 
