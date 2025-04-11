@@ -1,0 +1,19 @@
+#!/bin/sh
+
+cd $FOAM_RUN
+
+cd ..
+
+cd FluidSolidInteraction/src
+
+./Allwclean
+
+cd ~/OpenFPCI
+
+rm -rf src/solidSolvers/paraFEM/fem_routines/objectFiles
+rm -rf src/solidSolvers/paraFEM/largeStrain/femLargeStrain.dep
+rm -rf src/solidSolvers/paraFEM/largeStrain/femLargeStrainSolve.dep
+rm -rf src/solidSolvers/paraFEM/smallStrain/femSmallStrain.dep
+rm -rf src/solidSolvers/paraFEM/smallStrain/femSmallStrainSolve.dep
+rm -rf src/solidSolvers/paraFEM/paraFEM
+rm -rf src/openfpci.log

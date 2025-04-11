@@ -90,6 +90,7 @@
 
   INTEGER                   :: iel,nip,npes_pp,partitioner,ndof
   INTEGER                   :: nlen,i
+  INTEGER :: inode
 
   REAL(iwp),INTENT(IN)      :: g_coord(ndim,nn)
   REAL(iwp),INTENT(INOUT)   :: g_coord_pp(nod,ndim,nels_pp)
@@ -159,14 +160,44 @@
   IF(nod .EQ. 8)THEN
   
     IF(numpe .EQ. 1) WRITE(*,*)"Element type: ",element
-    
+    IF (numpe == 1) THEN
+      WRITE(*,*) "=== Foam-Extend Original Coordinates ==="
+      DO iel = 1, nels_pp
+        WRITE(*,*) "Element", iel, "Node IDs (original):", g_num_pp(:, iel)
+        WRITE(*,*) "Node Coordinates (X,Y,Z):"
+        DO inode = 1, nod
+          WRITE(*, '(A,I2,A,3F12.6)') "  Node ID", g_num_pp(inode, iel), ": ", &
+            g_coord(:, g_num_pp(inode, iel))
+        END DO
+      END DO
+    END IF
+    WRITE(*,*) "Number of nodes per element: ", nod
     ! Convert from Foam-Extend to Smith Gritths format
     DO iel=1,nels_pp
       CALL of2sg(element,g_num_pp(:,iel),nod)
+      ! WRITE(*,*) "Done for element: ", iel
+      DO inode = 1, nod
+        WRITE(*,'(A,I2,A,3F12.6)') "Element ", g_num_pp(inode, iel), "coords: ", & 
+             g_coord(:, g_num_pp(inode, iel))
+      END DO
     ENDDO
+    WRITE(*,*) "Number of nodes per element: ", nod
     ! Populate the coordinate matrix
     CALL POPULATE_G_COORD_PP2(g_coord,g_coord_pp,g_num_pp,nn,nod,ndim)
-    
+    DO iel = 1, nels_pp
+      volume = 0
+      CALL sample(element, points, weights)
+      DO i = 1, nip
+        CALL shape_der(der, points, i)
+        jac = MATMUL(der, g_coord_pp(:, :, iel))
+        det = determinant(jac)
+        volume = volume + det * weights(i)
+      END DO
+      ! DO inode = 1, nod
+      !   WRITE(*, '(A,I2,A,3F12.6)') "Node  ", inode, ": ", g_coord_pp(1:ndim, inode, iel)
+      ! END DO
+      ! IF (numpe == 1) WRITE(*, '(A,I6,A,E12.5)') "iel=", iel, ", volume=", volume
+    END DO
   ELSE IF(nod .EQ. 4)THEN
   
      IF(numpe .EQ. 1) WRITE(*,*)"Element type: ",element
@@ -533,7 +564,12 @@
   fext_pp = zero
 
   CALL load(g_g_pp,g_num_pp,node,val,fext_pp(1:))
-
+  IF (numpe == 1) THEN
+    WRITE(*,*) "Full val array (force vectors):"
+    DO i = 1, loaded_nodes
+        WRITE(*,'(A,I6,A,3E12.4)') "Node ", node(i), ": Force = ", val(:, i)
+    END DO
+END IF
   CALL MPI_BARRIER(MPI_COMM_WORLD,ier)
   
   fext_pp(1:) = fext_pp(1:) + gravlo_pp
