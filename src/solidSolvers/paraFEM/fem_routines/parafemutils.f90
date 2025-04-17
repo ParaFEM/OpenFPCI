@@ -971,6 +971,135 @@
   !--------------------------------------------------------------------
   !--------------------------------------------------------------------
 
+SUBROUTINE sort_hex_nodes(vector, coords, nod)
+  USE precision; IMPLICIT NONE
+
+  INTEGER, INTENT(IN)    :: nod
+  INTEGER, INTENT(INOUT) :: vector(nod)
+  REAL(iwp), INTENT(IN)  :: coords(3, nod)
+
+  INTEGER :: i, b, t
+  INTEGER :: bottom_ids(4), top_ids(4)
+  REAL(iwp) :: bottom_xy(2,4), top_xy(2,4)
+  INTEGER :: bottom_sorted(4), top_sorted(4)
+  REAL(iwp) :: z_avg
+
+  z_avg = SUM(coords(3,:)) / REAL(nod, iwp)
+  b = 0
+  t = 0
+
+  ! 分层：Z小的是底层，Z大的是顶层
+  DO i = 1, nod
+    IF (coords(3,i) <= z_avg) THEN
+      b = b + 1
+      bottom_ids(b) = vector(i)
+      bottom_xy(:,b) = coords(1:2,i)
+    ELSE
+      t = t + 1
+      top_ids(t) = vector(i)
+      top_xy(:,t) = coords(1:2,i)
+    END IF
+  END DO
+
+  IF (b /= 4 .OR. t /= 4) THEN
+    WRITE(*,*) "Error: Unexpected node distribution in Z"
+    RETURN
+  END IF
+
+  ! 按左下-右下-左上-右上排序
+  CALL sort_xy_quadrant_order(bottom_xy, bottom_ids)
+  CALL sort_xy_quadrant_order(top_xy,    top_ids)
+
+  ! 写回排序后的结果
+  DO i = 1, 4
+    vector(i)   = bottom_ids(i)
+    vector(i+4) = top_ids(i)
+  END DO
+
+END SUBROUTINE sort_hex_nodes
+
+
+SUBROUTINE sort_xy_quadrant_order(points, node_ids)
+  USE precision; IMPLICIT NONE
+
+  REAL(iwp), INTENT(IN)    :: points(2,4)         ! XY coordinates
+  INTEGER,  INTENT(INOUT)  :: node_ids(4)         ! Node IDs (global)
+  
+  INTEGER :: i, j, tmp_id
+  REAL(iwp) :: x(4), y(4), angle(4), tmp_a
+  REAL(iwp) :: xc, yc
+  INTEGER :: quadrant(4)
+  INTEGER :: ordered_ids(4)
+  
+  ! Split coordinates
+  x(:) = points(1,:)
+  y(:) = points(2,:)
+
+  ! Calculate centroid
+  xc = SUM(x) / 4.0_iwp
+  yc = SUM(y) / 4.0_iwp
+
+  ! Calculate angles relative to centroid (clockwise)
+  DO i = 1, 4
+    angle(i) = ATAN2(yc - y(i), x(i) - xc)  ! Negative for clockwise
+    ! Adjust angles to be in [0, 2π]
+    IF (angle(i) < 0.0_iwp) angle(i) = angle(i) + 2.0_iwp * 3.14159265358979_iwp
+  END DO
+
+  ! Sort by angle (clockwise)
+  DO i = 1, 3
+    DO j = i+1, 4
+      IF (angle(i) > angle(j)) THEN
+        tmp_a      = angle(i);     angle(i)     = angle(j);     angle(j)     = tmp_a
+        tmp_id     = node_ids(i);  node_ids(i)  = node_ids(j);  node_ids(j)  = tmp_id
+        tmp_a      = x(i);         x(i)         = x(j);         x(j)         = tmp_a
+        tmp_a      = y(i);         y(i)         = y(j);         y(j)         = tmp_a
+      END IF
+    END DO
+  END DO
+
+  ! Determine quadrants (after sorting)
+  DO i = 1, 4
+    IF (x(i) <= xc .AND. y(i) <= yc) THEN
+      quadrant(i) = 1  ! Bottom-left
+    ELSE IF (x(i) > xc .AND. y(i) <= yc) THEN
+      quadrant(i) = 2  ! Bottom-right
+    ELSE IF (x(i) <= xc .AND. y(i) > yc) THEN
+      quadrant(i) = 3  ! Top-left
+    ELSE
+      quadrant(i) = 4  ! Top-right
+    END IF
+  END DO
+
+  ! Reorder to BL, BR, TL, TR
+  ordered_ids = 0
+  DO i = 1, 4
+    SELECT CASE(quadrant(i))
+      CASE(1)
+        ordered_ids(1) = node_ids(i)
+      CASE(2)
+        ordered_ids(2) = node_ids(i)
+      CASE(3)
+        ordered_ids(3) = node_ids(i)
+      CASE(4)
+        ordered_ids(4) = node_ids(i)
+    END SELECT
+  END DO
+
+  ! Verify all positions are filled
+  DO i = 1, 4
+    IF (ordered_ids(i) == 0) THEN
+      ! If any position is empty (due to points exactly on quadrant boundaries),
+      ! fall back to the sorted order
+      ordered_ids = node_ids
+      EXIT
+    END IF
+  END DO
+
+  node_ids = ordered_ids
+
+END SUBROUTINE sort_xy_quadrant_order
+
   SUBROUTINE gloads(gravlo_pp,specWeight,nn,nodof,nod,ndim,nr,g_coord,g_num_pp,rest)
 
   !/****f* parafemutils/gloads

@@ -174,8 +174,17 @@
     WRITE(*,*) "Number of nodes per element: ", nod
     ! Convert from Foam-Extend to Smith Gritths format
     DO iel=1,nels_pp
+      CALL sort_hex_nodes(g_num_pp(:,iel), g_coord(:,g_num_pp(:,iel)), nod)
+      WRITE(*,*) "Element", iel, "Node IDs (after reorder):", g_num_pp(:, iel)
+      WRITE(*,*) "Node Coordinates (X,Y,Z):"
+      DO inode = 1, nod
+        WRITE(*,'(A,I2,A,3F12.6)') "Element ", g_num_pp(inode, iel), "coords: ", & 
+             g_coord(:, g_num_pp(inode, iel))
+      END DO
       CALL of2sg(element,g_num_pp(:,iel),nod)
       ! WRITE(*,*) "Done for element: ", iel
+      WRITE(*,*) "Element", iel, "Node IDs (after of2sg):", g_num_pp(:, iel)
+      WRITE(*,*) "Node Coordinates (X,Y,Z):"
       DO inode = 1, nod
         WRITE(*,'(A,I2,A,3F12.6)') "Element ", g_num_pp(inode, iel), "coords: ", & 
              g_coord(:, g_num_pp(inode, iel))
