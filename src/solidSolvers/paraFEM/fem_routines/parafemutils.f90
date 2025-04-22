@@ -1026,11 +1026,11 @@ SUBROUTINE sort_xy_quadrant_order(points, node_ids)
   INTEGER,  INTENT(INOUT)  :: node_ids(4)         ! Node IDs (global)
   
   INTEGER :: i, j, tmp_id
-  REAL(iwp) :: x(4), y(4), angle(4), tmp_a
+  REAL(iwp) :: x(4), y(4), angle(4), tmp_r
   REAL(iwp) :: xc, yc
-  INTEGER :: quadrant(4)
-  INTEGER :: ordered_ids(4)
-  
+  INTEGER :: sorted_idx(4)
+  REAL(iwp) :: tmp_angle
+
   ! Split coordinates
   x(:) = points(1,:)
   y(:) = points(2,:)
@@ -1039,66 +1039,44 @@ SUBROUTINE sort_xy_quadrant_order(points, node_ids)
   xc = SUM(x) / 4.0_iwp
   yc = SUM(y) / 4.0_iwp
 
-  ! Calculate angles relative to centroid (clockwise)
+  ! Calculate polar angle (clockwise from centroid)
   DO i = 1, 4
-    angle(i) = ATAN2(yc - y(i), x(i) - xc)  ! Negative for clockwise
-    ! Adjust angles to be in [0, 2π]
+    angle(i) = ATAN2(yc - y(i), x(i) - xc)
     IF (angle(i) < 0.0_iwp) angle(i) = angle(i) + 2.0_iwp * 3.14159265358979_iwp
   END DO
 
-  ! Sort by angle (clockwise)
+  ! Create sorted index array
+  DO i = 1, 4
+    sorted_idx(i) = i
+  END DO
+
+  ! Sort indices by angle (ascending, clockwise)
   DO i = 1, 3
     DO j = i+1, 4
-      IF (angle(i) > angle(j)) THEN
-        tmp_a      = angle(i);     angle(i)     = angle(j);     angle(j)     = tmp_a
-        tmp_id     = node_ids(i);  node_ids(i)  = node_ids(j);  node_ids(j)  = tmp_id
-        tmp_a      = x(i);         x(i)         = x(j);         x(j)         = tmp_a
-        tmp_a      = y(i);         y(i)         = y(j);         y(j)         = tmp_a
+      IF (angle(sorted_idx(i)) > angle(sorted_idx(j))) THEN
+        tmp_id = sorted_idx(i)
+        sorted_idx(i) = sorted_idx(j)
+        sorted_idx(j) = tmp_id
       END IF
     END DO
   END DO
 
-  ! Determine quadrants (after sorting)
-  DO i = 1, 4
-    IF (x(i) <= xc .AND. y(i) <= yc) THEN
-      quadrant(i) = 1  ! Bottom-left
-    ELSE IF (x(i) > xc .AND. y(i) <= yc) THEN
-      quadrant(i) = 2  ! Bottom-right
-    ELSE IF (x(i) <= xc .AND. y(i) > yc) THEN
-      quadrant(i) = 3  ! Top-left
-    ELSE
-      quadrant(i) = 4  ! Top-right
-    END IF
-  END DO
+  ! Reassign node_ids based on relative angle order:
+  ! Index meaning:
+  !   sorted_idx(1) -> Right-Top
+  !   sorted_idx(2) -> Left-Top
+  !   sorted_idx(3) -> Left-Bottom
+  !   sorted_idx(4) -> Right-Bottom
 
-  ! Reorder to BL, BR, TL, TR
-  ordered_ids = 0
-  DO i = 1, 4
-    SELECT CASE(quadrant(i))
-      CASE(1)
-        ordered_ids(1) = node_ids(i)
-      CASE(2)
-        ordered_ids(2) = node_ids(i)
-      CASE(3)
-        ordered_ids(3) = node_ids(i)
-      CASE(4)
-        ordered_ids(4) = node_ids(i)
-    END SELECT
-  END DO
-
-  ! Verify all positions are filled
-  DO i = 1, 4
-    IF (ordered_ids(i) == 0) THEN
-      ! If any position is empty (due to points exactly on quadrant boundaries),
-      ! fall back to the sorted order
-      ordered_ids = node_ids
-      EXIT
-    END IF
-  END DO
-
-  node_ids = ordered_ids
+  node_ids = (/ &
+    node_ids(sorted_idx(3)), & ! Left-Bottom
+    node_ids(sorted_idx(4)), & ! Right-Bottom
+    node_ids(sorted_idx(2)), & ! Left-Top
+    node_ids(sorted_idx(1))  & ! Right-Top
+  /)
 
 END SUBROUTINE sort_xy_quadrant_order
+
 
   SUBROUTINE gloads(gravlo_pp,specWeight,nn,nodof,nod,ndim,nr,g_coord,g_num_pp,rest)
 
