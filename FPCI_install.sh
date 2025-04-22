@@ -23,11 +23,10 @@ sudo apt-get update && sudo apt-get install -y \
     gcc-5 \
     g++-5 \
     gfortran \
-    qt4-dev-tools \
-    libqt4-dev \
     libiberty-dev \
     wget \
     nano \
+    tcsh \
     gnuplot \
     gnuplot-qt \
     gnuplot-data
@@ -111,11 +110,24 @@ source ~/.bashrc
 
 # 安装 OpenFPCI
 cd ~
-git clone https://github.com/SPHewitt/OpenFPCI.git
+# git clone https://github.com/SPHewitt/OpenFPCI.git
 
 export PARAFEM_DIR=~/ParaFEM/parafem
 export FOAM_DIR=~/foam/foam-extend-4.0
+lib_path=$(find /usr/lib/gcc/x86_64-linux-gnu/ -name "libgfortran.so" | head -n 1)
 
+# 如果找到了就创建软链接
+if [[ -n "$lib_path" ]]; then
+    echo "Found libgfortran at: $lib_path"
+    echo "Creating symlink in /usr/bin..."
+    
+    sudo ln -sf "$lib_path" /usr/bin/libgfortran.so
+
+    echo "Symlink created: /usr/bin/libgfortran.so -> $lib_path"
+else
+    echo "libgfortran.so not found under /usr/lib/gcc/x86_64-linux-gnu/"
+    exit 1
+fi
 cd ~/OpenFPCI/src
 source ~/foam/foam-extend-4.0/etc/bashrc
 ./openfpci.sh
