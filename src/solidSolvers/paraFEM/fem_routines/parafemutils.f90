@@ -1103,7 +1103,7 @@ SUBROUTINE sort_xy_quadrant_order(points, node_ids)
 
   ! Calculate angle from centroid to each point (clockwise)
   DO i = 1, 4
-    angle(i) = ATAN2(yc - y(i), x(i) - xc)
+    angle(i) = ATAN2(y(i) - yc, x(i) - xc)
     IF (angle(i) < 0.0_iwp) angle(i) = angle(i) + 2.0_iwp * 3.14159265358979_iwp
   END DO
 
