@@ -89,7 +89,6 @@ git clone https://github.com/ParaFEM/OpenFPCI.git
 The OpenFPCI can be compiled using the `FPCI_install.sh` script present in the OpenFPCI directory. The script will install both Foam-Extend and ParaFEM. The following command can be followed to install the software:
 
 ```
-cd ~/OpenFPCI/src
 ./FPCI_install.sh
 ```
 
