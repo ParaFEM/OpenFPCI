@@ -90,6 +90,7 @@ The OpenFPCI can be compiled using the `FPCI_install.sh` script present in the O
 
 ```
 cd ~/OpenFPCI
+chmod +x FPCI_install.sh
 ./FPCI_install.sh
 ```
 
