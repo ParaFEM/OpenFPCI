@@ -158,39 +158,10 @@
 !----------------------------------------------------------------------
 
   IF(nod .EQ. 8)THEN
-  
-    ! IF(numpe .EQ. 1) WRITE(*,*)"Element type: ",element
-    ! IF (numpe == 1) THEN
-    !   WRITE(*,*) "=== Foam-Extend Original Coordinates ==="
-    !   DO iel = 1, nels_pp
-    !     WRITE(*,*) "Element", iel, "Node IDs (original):", g_num_pp(:, iel)
-    !     WRITE(*,*) "Node Coordinates (X,Y,Z):"
-    !     DO inode = 1, nod
-    !       WRITE(*, '(A,I2,A,3F12.6)') "  Node ID", g_num_pp(inode, iel), ": ", &
-    !         g_coord(:, g_num_pp(inode, iel))
-    !     END DO
-    !   END DO
-    ! END IF
-    ! WRITE(*,*) "Number of nodes per element: ", nod
-    ! Convert from Foam-Extend to Smith Gritths format
     DO iel=1,nels_pp
       CALL sort_hex_nodes(g_num_pp(:,iel), g_coord(:,g_num_pp(:,iel)), nod)
-      ! WRITE(*,*) "Element", iel, "Node IDs (after reorder):", g_num_pp(:, iel)
-      ! WRITE(*,*) "Node Coordinates (X,Y,Z):"
-      ! DO inode = 1, nod
-      !   WRITE(*,'(A,I2,A,3F12.6)') "Element ", g_num_pp(inode, iel), "coords: ", & 
-      !        g_coord(:, g_num_pp(inode, iel))
-      ! END DO
       CALL of2sg(element,g_num_pp(:,iel),nod)
-      ! WRITE(*,*) "Done for element: ", iel
-      ! WRITE(*,*) "Element", iel, "Node IDs (after of2sg):", g_num_pp(:, iel)
-      ! WRITE(*,*) "Node Coordinates (X,Y,Z):"
-      ! DO inode = 1, nod
-      !   WRITE(*,'(A,I2,A,3F12.6)') "Element ", g_num_pp(inode, iel), "coords: ", & 
-      !        g_coord(:, g_num_pp(inode, iel))
-      ! END DO
     ENDDO
-    ! WRITE(*,*) "Number of nodes per element: ", nod
     ! Populate the coordinate matrix
     CALL POPULATE_G_COORD_PP2(g_coord,g_coord_pp,g_num_pp,nn,nod,ndim)
     DO iel = 1, nels_pp
@@ -202,12 +173,6 @@
         det = determinant(jac)
         volume = volume + det * weights(i)
       END DO
-      ! DO inode = 1, nod
-      !   WRITE(*, '(A,I2,A,3F12.6)') "Node  ", inode, ": ", g_coord_pp(1:ndim, inode, iel)
-      ! END DO
-      ! IF (numpe == 1) WRITE(*, '(A,I6,A,E12.5)') "iel=", iel, ", volume=", volume
-      
-      ! Check for negative volume
       IF (volume < 0.0) THEN
         IF (numpe == 1) WRITE(*, '(A,I6,A,E12.5,A)') "WARNING: iel=", iel, ", volume=", volume, " (Negative volume detected!)"
       END IF

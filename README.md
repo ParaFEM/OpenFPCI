@@ -52,6 +52,7 @@ The project tree presents the directories within OpenFPCI. Only the src/solidSol
 | [HronTurek](./run/HronTurek)  | This is the validation test case, based of the Turek and Hron benchmark. |
 | [src](./src)  | It contains two directories and a script. `SolidSolvers` contains the OpenFPCI files whilst `fluidSolvers` contains user implemented fluidSolvers for the FSI library. These are not required for OpenFPCI but add additional capabilites. |
 | [openfpci.sh](./src/openfpci.sh)  | This is the installation script, that can be run to install OpenFPCI |
+| [FPCI_install.sh](./src/FPCI_install.sh)  | This is the installation script, that can be run to install OpenFoam-extend-4.0, ParaFEM and OpenFPCI |
 | [fem_routines](./src/solidSolvers/paraFEM/fem_routines)  | It contains the Fortran files that are used to solve specific engineering problems. The suffix `parafem` is followed by the files purpose. `parafeml.f90` is used to solve the deformation of a linear elastic material undergoing small strain. `parafemnl.90` is used to solve the deformation of a linear elastic material undergoing large strain and `parafemutil.f90` contains useful subroutines for debugging, I/O and adding external loads. |
 | [largeStrain](./src/solidSolvers/paraFEM/largeStrain)  | It contains the C++ class files (.H and .C) that act as a wrapper around the `parafemnl.f90` Fortran file. |
 | [smallStrain](./src/solidSolvers/paraFEM/smallStrain)  | It contains the C++ class files (.H and .C) that act as a wrapper around the `parafeml.f90` Fortran file. |
@@ -79,65 +80,30 @@ The Windows subsystem can be installed via the Microsoft Store as Ubuntu 22.04 L
 3. After Pulling is completed, users can see the image that has been pulled to the local in Docker Desktop. Users can run the command `docker run -it Docker_Name_or_ID /bin/bash` to interact the OpenFPCI in Terminal. Docker command line docs refer to: https://docs.docker.com/engine/reference/commandline/cli/
 
 ### Install from Source Code
-Foam-Extend and ParaFEM must be downloaded and compiled prior to the installation of the OpenFPCI link. It is suggested that users follow the links provided above to install the relevent pacakges suitable for their systems. Once these packages have been compiled and installed the OpenFPCI can be downloaded using the following command: 
+Note: This software only supports Ubuntu 20.04 LTS and older versions of Ubuntu. The author recommends using Ubuntu 18.04 LTS. For other versions of Ubuntu, the author recommends making appropriate modifications to the `FPCI_install.sh` file according to OpenFoam's installation recommendations, link is following: https://openfoamwiki.net/index.php/Installation/Linux/foam-extend-4.0/Ubuntu#Ubuntu_versions .
+For users who do not have OpenFoam-extend-4.0 and ParaFEM installed, users only need to download the repo first, using the following command:
 ```
-git clone https://github.com/SPHewitt/OpenFPCI
-```
-
-The third-party FSI library and OpenFPCI can be downloaded and compiled using the openfpci.sh script present in the src directory. The script assumes that both Foam-Extend and ParaFEM are installed with the system OpenMPI. The following command can be followed to install the software, where the paths should be replaced:
-
-```
-echo "export PARAFEM_DIR=path/to/parafem-code/parafem" >> ~/.bashrc
-echo "export FOAM_DIR=path/to/foam/foam-extend-x.x" >> ~/.bashrc
-. ~/.bashrc
-cd OpenFPCI/src
-./openfpci.sh
+git clone https://github.com/ParaFEM/OpenFPCI.git
 ```
 
-The software has been tested with Foam-Extend-4.0 and ParaFEM.5.0.3 on a linux desktop running Ubuntu 16.04. The code has further been tested to The Computational Shared Facility at Manchester, the SGI system in Leeds (Polaris), The XC30 Cray system in Ediburugh (Archer) and the Tianhe2 Machine in Guangzhou China.
-
-The modules used on each of the systens is summarised below: 
-
-### Linux Desktop
-
-On a linux desktop the code uses openmpi-1.6.5 if another mpi package exists i.e. mpich the script will fail.  
-
-Prerequisites:
-
-* OpenMPI: Version 1.6.5 .
-* GCC compilers: gcc 5.x .
-* Ubuntu 16.04
-
-### Manchester Computational Facility
-
-The application has been tested with gnu/4.9.1 package and system openmpi version 1.6.5. The default compilers on the system are intel so these need to be swapped for the gnu compilers. 
+The OpenFPCI can be compiled using the `FPCI_install.sh` script present in the OpenFPCI directory. The script will install both Foam-Extend and ParaFEM. The following command can be followed to install the software:
 
 ```
-module load mpi/gcc/openmpi/1.8-ib
-
-module load compilers/gcc/4.9.0
+cd ~/OpenFPCI/src
+./FPCI_install.sh
 ```
 
-### SGI - N8 Polaris (Leeds)
+## System Requirement
+### PC
+The installation process supports the WSL Ubuntu subsystem and has been tested by the author in the Ubuntu 18.04/20.04 LTS subsystem on Windows 10/11.
+For Linux system, author advices use Ubuntu 20.04 LTS or older version of Ubuntu system.
 
-The application has been tested with gnu/4.9.1 package and system openmpi version 1.6.5. The default compilers on the system are intel so these need to be swapped for the gnu compilers.
+### HPC
+The docker can run in the supercomputer according to the container mode specified by the supercomputer. The author has tested it in ARCHER2 UK National Supercomputing Service.
 
-```
-module swap intel/"version" gnu/4.9.1
-
-module load openmpi/1.6.5
-
-```
-
-### XC30 -  Archer (Edinburgh)
-
-```
-module swap PrgEnv-cray PrgEnv-gnu/5.1.29
-
-module swap gcc/6.3.0 gcc/5.3.0
-
-```
+## Acknowledgment
+This project made use of time on ARCHER2 granted via the UK High-End Computing Consortium for Wave Structure Interaction (HEC-WSI) (http://hec-wsi.ac.uk), supported by EPSRC (grant no. EP/X035751/1)
 
 ## Contact
 
-For any assistance please contact sam.hewitt@manchester.ac.uk
+For any assistance please contact lee.margetts@manchester.ac.uk

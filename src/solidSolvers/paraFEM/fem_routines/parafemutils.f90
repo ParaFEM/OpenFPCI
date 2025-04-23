@@ -972,6 +972,34 @@
   !--------------------------------------------------------------------
 
 SUBROUTINE sort_hex_nodes(vector, coords, nod)
+  !/****f* parafemutils/sort_hex_nodes
+  !*  NAME
+  !*    SUBROUTINE: sort_hex_nodes
+  !*
+  !*  SYNOPSIS
+  !*    Usage:      CALL sort_hex_nodes(vector, coords, nod)
+  !*
+  !*  FUNCTION
+  !*    Reorders the node indices of a hexahedral element such that
+  !*    the nodes are sorted into two Z-layers (bottom and top),
+  !*    each ordered in a consistent clockwise pattern in the XY plane.
+  !*    This format is useful for consistent element processing and
+  !*    visualization, particularly in finite element meshes.
+  !*
+  !*  INPUTS
+  !*    nod     - Number of nodes per element (should be 8)
+  !*    coords  - Coordinates of nodes, in shape (3, nod)
+  !*
+  !*  OUTPUT
+  !*    vector  - Node indices reordered to follow layer and XY order
+  !*
+  !*  TODO
+  !*    * Generalize to other element types (e.g., prisms or pyramids)
+  !*    * Handle degenerate or non-planar hex elements more robustly
+  !*
+  !*  AUTHOR
+  !*    Jinjiang Li
+  !******
   USE precision; IMPLICIT NONE
 
   INTEGER, INTENT(IN)    :: nod
@@ -984,11 +1012,13 @@ SUBROUTINE sort_hex_nodes(vector, coords, nod)
   INTEGER :: bottom_sorted(4), top_sorted(4)
   REAL(iwp) :: z_avg
 
+  ! Compute the average Z value to determine bottom and top layers
   z_avg = SUM(coords(3,:)) / REAL(nod, iwp)
   b = 0
   t = 0
 
-  ! 分层：Z小的是底层，Z大的是顶层
+  ! Layering: nodes below or equal to average Z go to the bottom layer,
+  ! nodes above average Z go to the top layer
   DO i = 1, nod
     IF (coords(3,i) <= z_avg) THEN
       b = b + 1
@@ -1006,11 +1036,12 @@ SUBROUTINE sort_hex_nodes(vector, coords, nod)
     RETURN
   END IF
 
-  ! 按左下-右下-左上-右上排序
+  ! Sort each layer in order: lower-left, lower-right,
+  ! upper-left, upper-right as seen from negative Z
   CALL sort_xy_quadrant_order(bottom_xy, bottom_ids)
   CALL sort_xy_quadrant_order(top_xy,    top_ids)
 
-  ! 写回排序后的结果
+  ! Write back reordered node indices to vector
   DO i = 1, 4
     vector(i)   = bottom_ids(i)
     vector(i+4) = top_ids(i)
@@ -1020,6 +1051,37 @@ END SUBROUTINE sort_hex_nodes
 
 
 SUBROUTINE sort_xy_quadrant_order(points, node_ids)
+  !/****f* parafemutils/sort_xy_quadrant_order
+  !*  NAME
+  !*    SUBROUTINE: sort_xy_quadrant_order
+  !*
+  !*  SYNOPSIS
+  !*    Usage:      CALL sort_xy_quadrant_order(points, node_ids)
+  !*
+  !*  FUNCTION
+  !*    Sorts 4 nodes in the XY plane based on their angular position
+  !*    relative to the centroid. The output order is:
+  !*      1. Lower-Left
+  !*      2. Lower-Right
+  !*      3. Upper-Left
+  !*      4. Upper-Right
+  !*    This ordering is clockwise as seen from the negative Z-direction,
+  !*    and ensures a consistent geometric convention for further processing.
+  !*
+  !*  INPUTS
+  !*    points    - Real array (2,4), XY coordinates of nodes
+  !*    node_ids  - Integer array (4), node IDs corresponding to the points
+  !*
+  !*  OUTPUT
+  !*    node_ids  - Reordered node IDs in consistent quadrant-based order
+  !*
+  !*  TODO
+  !*    * Extend to support arbitrary number of points (e.g. polygons)
+  !*    * Make ordering configurable (clockwise vs counter-clockwise)
+  !*
+  !*  AUTHOR
+  !*    Jinjiang Li
+  !******
   USE precision; IMPLICIT NONE
 
   REAL(iwp), INTENT(IN)    :: points(2,4)         ! XY coordinates
@@ -1031,7 +1093,7 @@ SUBROUTINE sort_xy_quadrant_order(points, node_ids)
   INTEGER :: sorted_idx(4)
   REAL(iwp) :: tmp_angle
 
-  ! Split coordinates
+  ! Split coordinates into separate x and y arrays
   x(:) = points(1,:)
   y(:) = points(2,:)
 
@@ -1039,7 +1101,7 @@ SUBROUTINE sort_xy_quadrant_order(points, node_ids)
   xc = SUM(x) / 4.0_iwp
   yc = SUM(y) / 4.0_iwp
 
-  ! Calculate polar angle (clockwise from centroid)
+  ! Calculate angle from centroid to each point (clockwise)
   DO i = 1, 4
     angle(i) = ATAN2(yc - y(i), x(i) - xc)
     IF (angle(i) < 0.0_iwp) angle(i) = angle(i) + 2.0_iwp * 3.14159265358979_iwp
@@ -1050,7 +1112,7 @@ SUBROUTINE sort_xy_quadrant_order(points, node_ids)
     sorted_idx(i) = i
   END DO
 
-  ! Sort indices by angle (ascending, clockwise)
+  ! Sort indices based on angle in ascending order (clockwise)
   DO i = 1, 3
     DO j = i+1, 4
       IF (angle(sorted_idx(i)) > angle(sorted_idx(j))) THEN
@@ -1060,13 +1122,6 @@ SUBROUTINE sort_xy_quadrant_order(points, node_ids)
       END IF
     END DO
   END DO
-
-  ! Reassign node_ids based on relative angle order:
-  ! Index meaning:
-  !   sorted_idx(1) -> Right-Top
-  !   sorted_idx(2) -> Left-Top
-  !   sorted_idx(3) -> Left-Bottom
-  !   sorted_idx(4) -> Right-Bottom
 
   node_ids = (/ &
     node_ids(sorted_idx(3)), & ! Left-Bottom
