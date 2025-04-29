@@ -110,7 +110,8 @@ source ~/.bashrc
 
 # Install OpenFPCI
 cd ~
-
+export PARAFEM_DIR=~/ParaFEM/parafem
+export FOAM_DIR=~/foam/foam-extend-4.0
 echo 'export PARAFEM_DIR=~/ParaFEM/parafem' >> ~/.bashrc
 echo 'export FOAM_DIR=~/foam/foam-extend-4.0' >> ~/.bashrc
 source ~/.bashrc
