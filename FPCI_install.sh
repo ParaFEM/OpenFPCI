@@ -31,7 +31,7 @@ sudo apt-get update && sudo apt-get install -y \
     gnuplot-qt \
     gnuplot-data
 
-
+sudo ln -s /usr/lib/x86_64-linux-gnu/libgfortran.so.5 /usr/lib/x86_64-linux-gnu/libgfortran.so
 # Set working directory
 mkdir -p ~/foam
 cd ~/foam
