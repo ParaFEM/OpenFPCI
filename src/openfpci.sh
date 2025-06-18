@@ -164,6 +164,9 @@ if [ ! -d FluidSolidInteraction ]; then
     tar -xzf Fsi_40.tar.gz >> $logfile 2>&1  
 fi
 
+cd ./FluidSolidInteraction/src/fluidSolidInteraction/fluidSolvers/finiteVolume/RBFMeshMotionSolver/
+sed -i '9 a #include <vector>' RBFMeshMotionSolver.C
+
 # Build the Toolkit
 printf "\nFirst Fsi library compilation\n"
 printf "\nFirst Fsi library compilation\n" >> $logfile
