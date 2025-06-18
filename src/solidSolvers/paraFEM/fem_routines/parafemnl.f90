@@ -543,12 +543,12 @@
   fext_pp = zero
 
   CALL load(g_g_pp,g_num_pp,node,val,fext_pp(1:))
-  ! IF (numpe == 1) THEN
-  !   WRITE(*,*) "Full val array (force vectors):"
+  IF (numpe == 1) THEN
+    WRITE(*,*) "Recompiled"
   !   DO i = 1, loaded_nodes
   !       WRITE(*,'(A,I6,A,3E12.4)') "Node ", node(i), ": Force = ", val(:, i)
   !   END DO
-  ! END IF
+  END IF
   CALL MPI_BARRIER(MPI_COMM_WORLD,ier)
   
   fext_pp(1:) = fext_pp(1:) + gravlo_pp
@@ -837,7 +837,7 @@
       ! To ensure completion of PCG
       CALL MPI_BARRIER(MPI_COMM_WORLD,ier)
 
-      !IF(numpe .EQ. 1)WRITE(*,'(2(a,I3))'),"N-R: ",inewton," PCG iters: ",iters
+      IF(numpe .EQ. 1)WRITE(*,'(2(a,I3))') "N-R: ",inewton," PCG iters: ",iters
 
       xnew_pp(1:) = xnew_pp(1:) + deltax_pp(1:)
       xnew_pp(0) = .0_iwp
@@ -868,7 +868,7 @@
 
     END DO iterations
    
-   IF(numpe .EQ. 1)WRITE(*,'(a,I3,a,ES10.3)')," Newton-Raphson Iters: ",inewton,&
+   IF(numpe .EQ. 1)WRITE(*,'(a,I3,a,ES10.3)') " Newton-Raphson Iters: ",inewton,&
                                         ",  Final residual: ", (energy/energy1)
 
    nr_timest(inewton,7)= elap_time()-timest(14)
