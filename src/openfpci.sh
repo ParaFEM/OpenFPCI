@@ -179,6 +179,12 @@ cd $WM_PROJECT_USER_DIR/FluidSolidInteraction/src
 printf "\nCorrections to the FSI Library\n"
 printf "\nCorrections to the FSI Library\n" >> $logfile
 
+cd $WM_PROJECT_USER_DIR/FluidSolidInteraction
+find run -name options | while read item; do
+    sed -i -e 's=$(WM_PROJECT_DIR)/applications/solvers/FSI=$(WM_PROJECT_USER_DIR)/FluidSolidInteraction/src=' $item
+    sed -i -e 's=$(WM_THIRD_PARTY_DIR)/packages/eigen3=$(WM_PROJECT_USER_DIR)/FluidSolidInteraction/src/ThirdParty/eigen3=' $item
+done
+
 cd $WM_PROJECT_USER_DIR/FluidSolidInteraction/src/fluidSolidInteraction/fluidSolvers/
 
 # If setFluxRequired string exists within file ignore
@@ -210,8 +216,11 @@ cd $WM_PROJECT_USER_DIR/FluidSolidInteraction/src/fluidSolidInteraction/solidSol
 ln -s $WORKING_DIR/solidSolvers/paraFEM paraFEM
 
 
-OPENMPI_COMPILE_FLAGS="`mpif90 --showme:compile`"
-OPENMPI_LINK_FLAGS="`mpif90 --showme:link`"
+# OPENMPI_COMPILE_FLAGS="`mpif90 --showme:compile`"
+# OPENMPI_LINK_FLAGS="`mpif90 --showme:link`"
+
+MPICH_COMPILE_FLAGS="$(mpif90 -link_info | sed 's/\<gfortran\>//g' | sed 's/ *-pthread//g')"
+MPICH_LINK_FLAGS="$(mpif90 -link_info | sed 's/\<gfortran\>//g' | sed 's/ *-pthread//g')"
 
 if grep -Fq "femLargeStrain.C" $WM_PROJECT_USER_DIR/FluidSolidInteraction/src/fluidSolidInteraction/Make/files; then
     printf ""
@@ -236,7 +245,7 @@ else
     printf "\nModifying fsiFoam/Make/options"
     printf "\nModifying fsiFoam/Make/options" >> $logfile
     
-    STRING="$OPENMPI_LINK_FLAGS \\"
+    STRING="$MPICH_LINK_FLAGS \\"
     STRING=$(printf "%*s%s" 3 '' "$STRING")
     sed -i "/EXE_LIBS = /a \ ${STRING}\\" $OPTIONS
 
@@ -272,17 +281,17 @@ printf "\nCompiling OpenFPCI Fortran files" >> $logfile
 
 # Compile the Fortran Subroutines
 cd $OPENFPCI_DIR/src/solidSolvers/paraFEM/fem_routines
-printf "\ngfortran -fcheck=all -c parafeml.f90 -o parafeml.o -I${PARAFEM_DIR}/include/mpi"
-printf "\ngfortran -fcheck=all -c parafeml.f90 -o parafeml.o -I${PARAFEM_DIR}/include/mpi" >> $logfile
-gfortran -fcheck=all -c parafeml.f90 -o parafeml.o -I${PARAFEM_DIR}/include/mpi >> $logfile 2>&1  
+printf "\ngfortran -fcheck=all -c parafeml.f90 -o parafeml.o -I${PARAFEM_DIR}/include/mpi -I/usr/include"
+printf "\ngfortran -fcheck=all -c parafeml.f90 -o parafeml.o -I${PARAFEM_DIR}/include/mpi -I/usr/include" >> $logfile
+gfortran -fcheck=all -c parafeml.f90 -o parafeml.o -I${PARAFEM_DIR}/include/mpi -I/usr/include >> $logfile 2>&1  
 
-printf "\ngfortran -fcheck=all -c parafemnl.f90 -o parafemnl.o -I${PARAFEM_DIR}/include/mpi"
-printf "\ngfortran -fcheck=all -c parafemnl.f90 -o parafemnl.o -I${PARAFEM_DIR}/include/mpi" >> $logfile
-gfortran -fcheck=all -c parafemnl.f90 -o parafemnl.o -I${PARAFEM_DIR}/include/mpi >> $logfile 2>&1
+printf "\ngfortran -fcheck=all -c parafemnl.f90 -o parafemnl.o -I${PARAFEM_DIR}/include/mpi -I/usr/include"
+printf "\ngfortran -fcheck=all -c parafemnl.f90 -o parafemnl.o -I${PARAFEM_DIR}/include/mpi -I/usr/include" >> $logfile
+gfortran -fcheck=all -c parafemnl.f90 -o parafemnl.o -I${PARAFEM_DIR}/include/mpi -I/usr/include >> $logfile 2>&1
 
-printf "\ngfortran -fcheck=all -c parafemutils.f90 -o parafemutils.o -I${PARAFEM_DIR}/include/mpi"
-printf "\ngfortran -fcheck=all -c parafemutils.f90 -o parafemutils.o -I${PARAFEM_DIR}/include/mpi" >> $logfile
-gfortran -fcheck=all -c parafemutils.f90 -o parafemutils.o -I${PARAFEM_DIR}/include/mpi >> $logfile 2>&1
+printf "\ngfortran -fcheck=all -c parafemutils.f90 -o parafemutils.o -I${PARAFEM_DIR}/include/mpi -I/usr/include"
+printf "\ngfortran -fcheck=all -c parafemutils.f90 -o parafemutils.o -I${PARAFEM_DIR}/include/mpi -I/usr/include" >> $logfile
+gfortran -fcheck=all -c parafemutils.f90 -o parafemutils.o -I${PARAFEM_DIR}/include/mpi -I/usr/include >> $logfile 2>&1
 
 mkdir -p objectFiles
 mv *.o objectFiles/.
