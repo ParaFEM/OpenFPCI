@@ -2,7 +2,7 @@ FROM ubuntu:18.04
 RUN apt-get update && apt-get install -y sudo
 RUN useradd -ms /bin/bash openfpci
 RUN usermod -aG sudo openfpci
-RUN echo 'openfpic ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+RUN echo 'openfpci ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 WORKDIR /home
 USER openfpci
 WORKDIR /home/openfpci
