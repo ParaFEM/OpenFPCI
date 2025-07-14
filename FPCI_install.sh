@@ -30,7 +30,14 @@ sudo apt-get update && sudo apt-get install -y \
     curl \
     gnuplot \
     gnuplot-qt \
-    gnuplot-data
+    gnuplot-data \
+    apt-utils \
+    build-essential \
+    curl \
+    libcurl4-openssl-dev \
+    libzmq3-dev \
+    pkg-config \
+    software-properties-common
 
 # sudo ln -s /usr/lib/x86_64-linux-gnu/libgfortran.so.5 /usr/lib/x86_64-linux-gnu/libgfortran.so
 # Set working directory
