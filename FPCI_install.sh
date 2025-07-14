@@ -37,7 +37,8 @@ sudo apt-get update && sudo apt-get install -y \
     libcurl4-openssl-dev \
     libzmq3-dev \
     pkg-config \
-    software-properties-common
+    software-properties-common \
+    autoconf automake build-essential numactl libnuma-dev autoconf automake libtool \
 
 # sudo ln -s /usr/lib/x86_64-linux-gnu/libgfortran.so.5 /usr/lib/x86_64-linux-gnu/libgfortran.so
 # Set working directory
