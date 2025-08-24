@@ -854,7 +854,7 @@
        energy1 = energy
       END IF
       
-      if(numpe .EQ. 1)WRITE(*,*)iload,inewton,energy,energy/energy1
+      ! if(numpe .EQ. 1)WRITE(*,*)iload,inewton,energy,energy/energy1
       
       IF (inewton>1) THEN
         IF ((energy/energy1)<=tol2) THEN
@@ -862,7 +862,7 @@
         END IF 
       END IF 
 
-      IF(converged .OR. inewton==2) THEN
+      IF(converged .OR. inewton==10) THEN
         EXIT
       END IF
 
