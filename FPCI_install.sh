@@ -158,20 +158,21 @@ echo 'export PARAFEM_DIR=~/ParaFEM/parafem' >> ~/.bashrc
 echo 'export FOAM_DIR=~/foam/foam-extend-4.0' >> ~/.bashrc
 source ~/.bashrc
 
-lib_path=$(find /usr/lib/gcc/x86_64-linux-gnu/ -name "libgfortran.so" | head -n 1)
+sudo ln -sf /lib/x86_64-linux-gnu/libgfortran.so.5.0.0 /lib/x86_64-linux-gnu/libgfortran.so
+# lib_path=$(find /usr/lib/gcc/x86_64-linux-gnu/ -name "libgfortran.so" | head -n 1)
 
-# Create symlink if libgfortran is found
-if [[ -n "$lib_path" ]]; then
-    echo "Found libgfortran at: $lib_path"
-    echo "Creating symlink in /usr/bin..."
+# # Create symlink if libgfortran is found
+# if [[ -n "$lib_path" ]]; then
+#     echo "Found libgfortran at: $lib_path"
+#     echo "Creating symlink in /usr/bin..."
     
-    sudo ln -sf "$lib_path" /usr/bin/libgfortran.so
+#     sudo ln -sf "$lib_path" /usr/bin/libgfortran.so
 
-    echo "Symlink created: /usr/bin/libgfortran.so -> $lib_path"
-else
-    echo "libgfortran.so not found under /usr/lib/gcc/x86_64-linux-gnu/"
-    exit 1
-fi
+#     echo "Symlink created: /usr/bin/libgfortran.so -> $lib_path"
+# else
+#     echo "libgfortran.so not found under /usr/lib/gcc/x86_64-linux-gnu/"
+#     exit 1
+# fi
 cd ~/OpenFPCI/src
 source ~/foam/foam-extend-4.0/etc/bashrc
 ./openfpci.sh
