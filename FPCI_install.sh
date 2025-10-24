@@ -46,7 +46,7 @@ curl -sSLO http://www.mpich.org/static/downloads/3.4.2/mpich-3.4.2.tar.gz
 sudo tar -xzf mpich-3.4.2.tar.gz -C /root
 sudo su
 cd /root/mpich-3.4.2
-./configure --prefix=/usr --with-device=ch4:ofi --disable-fortran
+./configure --prefix=/usr --with-device=ch4:ofi --enable-fortran=all
 make -j8 install
 rm -rf /root/mpich-3.4.2
 exit
