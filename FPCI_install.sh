@@ -12,6 +12,8 @@ sudo apt-get update && sudo apt-get install -y \
     zlib1g-dev \
     libncurses5-dev \
     libreadline-dev \
+    openmpi-bin \
+    libopenmpi-dev \
     libxt-dev \
     rpm \
     mercurial \
