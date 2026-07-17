@@ -110,6 +110,74 @@ sed -i -e 's/g++/\$(WM_CXX)/' wmake/rules/linux64Gcc/c++
 source etc/bashrc
 ./Allwmake.firstInstall > OpenFoam_Extend_40_log.txt 2>&1
 
+
+###############################################################################
+# Modify fvMesh.C to support restart fields in region directories
+###############################################################################
+
+# Reload the foam-extend environment to ensure WM_PROJECT_DIR is available
+source ~/foam/foam-extend-4.0/etc/bashrc
+
+FVMESH_FILE="$WM_PROJECT_DIR/src/finiteVolume/fvMesh/fvMesh.C"
+
+if [ ! -f "$FVMESH_FILE" ]; then
+    echo "Error: fvMesh.C was not found:"
+    echo "$FVMESH_FILE"
+    exit 1
+fi
+
+echo "Modifying restart field paths in:"
+echo "$FVMESH_FILE"
+
+# Keep one backup of the original source file
+if [ ! -f "${FVMESH_FILE}.original" ]; then
+    cp "$FVMESH_FILE" "${FVMESH_FILE}.original"
+fi
+
+# Modify the V0 path
+sed -i \
+    's|isFile(time().timePath()/"V0")|isFile(time().timePath()/this->dbDir()/"V0")|g' \
+    "$FVMESH_FILE"
+
+# Modify the meshPhi path
+sed -i \
+    's|isFile(time().timePath()/"meshPhi")|isFile(time().timePath()/this->dbDir()/"meshPhi")|g' \
+    "$FVMESH_FILE"
+
+# Check that both changes are present
+if ! grep -Fq \
+    'isFile(time().timePath()/this->dbDir()/"V0")' \
+    "$FVMESH_FILE"; then
+    echo "Error: Failed to modify the V0 path in fvMesh.C"
+    exit 1
+fi
+
+if ! grep -Fq \
+    'isFile(time().timePath()/this->dbDir()/"meshPhi")' \
+    "$FVMESH_FILE"; then
+    echo "Error: Failed to modify the meshPhi path in fvMesh.C"
+    exit 1
+fi
+
+echo "fvMesh.C was modified successfully."
+
+# Recompile the finiteVolume library
+cd "$WM_PROJECT_DIR/src/finiteVolume"
+
+echo "Cleaning the finiteVolume library..."
+wclean
+
+echo "Recompiling the finiteVolume library..."
+wmake libso > finiteVolume_recompile_log.txt 2>&1
+
+echo "finiteVolume library was recompiled successfully."
+
+
+###############################################################################
+# Continue installing FSI and ParaFEM
+###############################################################################
+
+
 # Create user directories
 mkdir -p $WM_PROJECT_USER_DIR
 mkdir -p $FOAM_RUN
