@@ -24,7 +24,7 @@ sudo apt-get update && sudo apt-get install -y \
     python3-dev \
     gcc-5 \
     g++-5 \
-    gfortran-5 \
+    gfortran \
     libiberty-dev \
     wget \
     nano \
