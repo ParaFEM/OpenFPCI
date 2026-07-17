@@ -6,6 +6,7 @@ RUN echo 'openfpci ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 WORKDIR /home
 USER openfpci
 WORKDIR /home/openfpci
-RUN  sudo apt-get -y update &&  sudo apt-get -y install git-core  && git clone https://github.com/ParaFEM/OpenFPCI.git && git checkout Archer2
+RUN  sudo apt-get -y update &&  sudo apt-get -y install git-core  && git clone https://github.com/ParaFEM/OpenFPCI.git
 WORKDIR /home/openfpci/OpenFPCI
+RUN git checkout Archer2
 RUN sudo chmod +x FPCI_install.sh && ./FPCI_install.sh
