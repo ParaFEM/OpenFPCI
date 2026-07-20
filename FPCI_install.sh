@@ -161,6 +161,10 @@ tar -xzf Fsi_40.tar.gz
 cd ./FluidSolidInteraction/src/fluidSolidInteraction/fluidSolvers/finiteVolume/RBFMeshMotionSolver/
 sed -i '9 a #include <vector>' RBFMeshMotionSolver.C
 
+# GGI changed to AABB master and slave mapping method
+sed -i 's/ggiInterpolation::BB_OCTREE/ggiInterpolation::AABB/' \
+"$(find "$WM_PROJECT_USER_DIR/FluidSolidInteraction/src" -name fluidSolidInterface.C | head -n 1)"
+
 # Compile FSI module
 cd "$WM_PROJECT_USER_DIR/FluidSolidInteraction/src"
 source ~/foam/foam-extend-4.0/etc/bashrc
