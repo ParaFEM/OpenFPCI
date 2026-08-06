@@ -2093,8 +2093,8 @@ Switch moveMesh(solidProperties().lookup("moveMesh"));
 
         forAll (pointDI, pointI)
         {
-            curPoints[pointI] += pointDI[pointI];
-	   // curPoints[pointI]=startPoints[pointI]+pointDI[pointI];
+           // curPoints[pointI] += pointDI[pointI];
+	        curPoints[pointI]=startPoints[pointI]+pointDI[pointI];
         }
 
 
